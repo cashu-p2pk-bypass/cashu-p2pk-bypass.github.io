@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashu P2PK Bypass</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1e1e1e;
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            color: #d4d4d4;
+            line-height: 1.55;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #252526;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+            border: 1px solid #3c3c3c;
+        }
+
+        .header-bar {
+            background: #2d2d2d;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #3c3c3c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .header-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .header-title {
+            font-size: 0.78rem;
+            color: #858585;
+            margin-left: 4px;
+        }
+
+        .content {
+            padding: 1.8rem 2rem 2.2rem;
+        }
+
+        .config-card {
+            background: #1e1e1e;
+            border-radius: 10px;
+            border: 1px solid #3c3c3c;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .config-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin: 0.65rem 0;
+        }
+
+        .config-label {
+            color: #9cdcfe;
+            font-weight: 500;
+            min-width: 80px;
+            font-size: 0.85rem;
+        }
+
+        .code-input {
+            background: #2d2d2d;
+            border: 1px solid #3c3c3c;
+            color: #ce9178;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 5px 9px;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .code-input.small {
+            max-width: 110px;
+            flex: none;
+        }
+
+        .code-input:focus {
+            border-color: #007acc;
+            box-shadow: 0 0 0 1px #007acc40;
+            background: #1a1a1a;
+        }
+
+        .code-input::-webkit-inner-spin-button,
+        .code-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .code-input {
+            -moz-appearance: textfield;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #0e639c;
+            border: none;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 7px 22px;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: background 0.15s;
+        }
+
+        .btn:hover {
+            background: #1177bb;
+        }
+
+        .btn:active {
+            background: #094771;
+        }
+
+        .btn:disabled {
+            background: #404040;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #3c3c3c;
+        }
+
+        .btn-secondary:hover {
+            background: #505050;
+        }
+
+        .invoice-panel {
+            background: #1e1e1e;
+            border-radius: 10px;
+            border: 1px solid #3c3c3c;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .invoice-label {
+            font-size: 0.72rem;
+            color: #858585;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.9rem;
+        }
+
+        .qr-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            align-items: flex-start;
+        }
+
+        #qr-code {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .invoice-right {
+            flex: 1;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .invoice-text {
+            background: #252526;
+            border: 1px solid #3c3c3c;
+            border-radius: 6px;
+            padding: 10px;
+            word-break: break-all;
+            font-size: 0.72rem;
+            color: #ce9178;
+            cursor: pointer;
+            line-height: 1.5;
+            transition: border-color 0.15s;
+        }
+
+        .invoice-text:hover {
+            border-color: #007acc;
+        }
+
+        .copy-hint {
+            font-size: 0.68rem;
+            color: #858585;
+        }
+
+        .copy-hint.ok {
+            color: #4ec9b0;
+        }
+
+        .token-result-card {
+            display: none;
+            margin-top: 0.5rem;
+        }
+
+        .token-result-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4ec9b0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 0.9rem;
+        }
+
+        .token-string {
+            background: #0f2a0f;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            word-break: break-all;
+            color: #b5cea8;
+            cursor: pointer;
+            border: 1px solid #2d6a2d;
+            transition: border-color 0.15s;
+            line-height: 1.5;
+        }
+
+        .token-string:hover {
+            border-color: #4ec9b0;
+        }
+
+        .meta-info {
+            font-size: 0.68rem;
+            color: #858585;
+            margin-top: 8px;
+            line-height: 1.9;
+        }
+
+        .meta-key {
+            color: #9cdcfe;
+        }
+
+        .meta-val {
+            color: #ce9178;
+        }
+
+        .meta-warn {
+            color: #f44747;
+        }
+
+        .error-block {
+            background: #2d1a1a;
+            border-left: 4px solid #f44747;
+            padding: 0.9rem 1rem;
+            border-radius: 8px;
+            color: #f08080;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .footer {
+            border-top: 1px solid #3c3c3c;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer a {
+            color: #858585;
+            text-decoration: none;
+            font-size: 0.72rem;
+            transition: color 0.15s;
+        }
+
+        .footer a:hover {
+            color: #9cdcfe;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1.2rem;
+            }
+
+            .config-label {
+                min-width: 68px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <div class="header-dots">
+                <span style="background:#ff5f57"></span>
+                <span style="background:#febc2e"></span>
+                <span style="background:#28c840"></span>
+            </div>
+            <span class="header-title">Cashu P2PK Bypass</span>
+        </div>
+
+        <div class="content">
+
+            <div class="config-card">
+                <div class="config-row">
+                    <span class="config-label">mintUrl:</span>
+                    <input type="text" id="mintUrl" class="code-input" placeholder="https://mint.minibits.cash/Bitcoin"
+                        autocomplete="off" spellcheck="false">
+                </div>
+                <div class="config-row">
+                    <span class="config-label">amount:</span>
+                    <input type="number" id="amount" class="code-input small" placeholder="" min="1" step="1">
+                </div>
+                <div class="config-row">
+                    <span class="config-label">pubkey:</span>
+                    <input type="text" id="pubkey" class="code-input" placeholder=""
+                        autocomplete="off" spellcheck="false">
+                </div>
+                <div class="config-row">
+                    <span class="config-label">sigflag:</span>
+                    <input type="text" id="sigflag" class="code-input small" placeholder="SIG_INPUTS" autocomplete="off"
+                        spellcheck="false">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" id="mintBtn" onclick="startMint()">▶ Mint</button>
+                <button class="btn btn-secondary" onclick="resetUI()">↺ Reset</button>
+            </div>
+
+            <div class="invoice-panel" id="invoicePanel">
+                <div class="invoice-label">LN Invoice</div>
+                <div class="qr-row">
+                    <div id="qr-code"></div>
+                    <div class="invoice-right">
+                        <div class="invoice-text" id="invoiceString" onclick="copyInvoice()"></div>
+                        <div class="copy-hint" id="invoiceCopyHint">Click to copy invoice</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="token-result-card" id="tokenResultPanel">
+                <div class="token-string" id="tokenString" onclick="copyToken()"></div>
+                <div class="copy-hint" id="tokenCopyHint">Click to copy token</div>
+                <div class="meta-info" id="tokenMeta"></div>
+            </div>
+
+            <div class="error-block" id="errorBlock"></div>
+
+        </div>
+
+        <div class="footer">
+            <a href="https://github.com/cashubtc/nutshell/pull/959" target="_blank" rel="noopener noreferrer">cashubtc/nutshell#959</a>
+            <a href="https://github.com/nostr-protocol/nips/blob/master/61.md" target="_blank" rel="noopener noreferrer">nostr-protocol/nips/61.md</a>
+        </div>
+    </div>
+
+    <script>
+        let useProxy = false;
+
+        async function apiFetch(url, opts = {}) {
+            const target = useProxy ? `https://corsproxy.io/?${encodeURIComponent(url)}` : url;
+            return fetch(target, opts);
+        }
+
+        const secp = (() => {
+            const P = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2Fn;
+            const N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141n;
+            const Gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798n;
+            const Gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8n;
+            const B = 7n;
+
+            const m = (a, p = P) => ((a % p) + p) % p;
+            const pw = (b, e, p) => { let r = 1n; b = m(b, p); for (; e > 0n; e >>= 1n) { if (e & 1n) r = r * b % p; b = b * b % p; } return r; };
+            const inv = (a, p = P) => pw(m(a, p), p - 2n, p);
+            const sqrt = a => pw(a, (P + 1n) / 4n, P);
+
+            class Point {
+                constructor(x, y) { this.x = x; this.y = y; }
+                static ZERO = new Point(0n, 0n);
+                static BASE = new Point(Gx, Gy);
+                isZero() { return this.x === 0n && this.y === 0n; }
+                negate() { return this.isZero() ? this : new Point(this.x, m(-this.y)); }
+                double() {
+                    if (this.isZero()) return this;
+                    const lam = m(3n * this.x * this.x * inv(2n * this.y));
+                    const nx = m(lam * lam - 2n * this.x);
+                    return new Point(nx, m(lam * (this.x - nx) - this.y));
+                }
+                add(o) {
+                    if (this.isZero()) return o;
+                    if (o.isZero()) return this;
+                    if (this.x === o.x) return this.y !== o.y ? Point.ZERO : this.double();
+                    const lam = m((o.y - this.y) * inv(o.x - this.x));
+                    const nx = m(lam * lam - this.x - o.x);
+                    return new Point(nx, m(lam * (this.x - nx) - this.y));
+                }
+                subtract(o) { return this.add(o.negate()); }
+                multiply(k) {
+                    let n = m(k, N), Q = Point.ZERO, R = new Point(this.x, this.y);
+                    for (; n > 0n; n >>= 1n) { if (n & 1n) Q = Q.add(R); R = R.double(); } return Q;
+                }
+                static fromHex(hex) {
+                    const pfx = hex.slice(0, 2), x = BigInt('0x' + hex.slice(2, 66));
+                    if (pfx === '04') return new Point(x, BigInt('0x' + hex.slice(66)));
+                    const y2 = m(pw(x, 3n, P) + B); let y = sqrt(y2);
+                    if (y * y % P !== y2) throw new Error('invalid point');
+                    const odd = (y & 1n) === 1n;
+                    if ((pfx === '03') !== odd) y = m(-y);
+                    return new Point(x, y);
+                }
+                toHex() {
+                    const pfx = (this.y & 1n) === 0n ? '02' : '03';
+                    return pfx + this.x.toString(16).padStart(64, '0');
+                }
+            }
+            return { Point, N };
+        })();
+
+        const sha256 = async d => new Uint8Array(
+            await crypto.subtle.digest('SHA-256',
+                typeof d === 'string' ? new TextEncoder().encode(d) : d));
+
+        const b2h = b => Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('');
+        const cat = (...a) => {
+            const t = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let o = 0;
+            a.forEach(x => { t.set(x, o); o += x.length; }); return t;
+        };
+
+        async function hashToCurve(msg) {
+            const DOMAIN_SEPARATOR = new TextEncoder().encode("Secp256k1_HashToCurve_Cashu_");
+            const mb = new TextEncoder().encode(msg);
+            const msgToHash = await sha256(cat(DOMAIN_SEPARATOR, mb));
+            for (let c = 0; c < 65536; c++) {
+                const cb = new Uint8Array(4);
+                new DataView(cb.buffer).setUint32(0, c, true);
+                const h = await sha256(cat(msgToHash, cb));
+                try { return secp.Point.fromHex('02' + b2h(h)); } catch (_) { }
+            }
+            throw new Error('hashToCurve: no valid point found');
+        }
+
+        function randomScalar() {
+            const b = crypto.getRandomValues(new Uint8Array(32));
+            const n = BigInt('0x' + b2h(b)) % secp.N;
+            return n === 0n ? randomScalar() : n;
+        }
+
+        function buildSecret(pubkey, sigflag) {
+            const nonce = b2h(crypto.getRandomValues(new Uint8Array(8)));
+            return JSON.stringify(["P2PK", { nonce, data: pubkey, tags: [["sigflag", sigflag]] }]);
+        }
+
+        function encodeToken(mintUrl, proof) {
+            const b64 = btoa(JSON.stringify({ token: [{ mint: mintUrl, proofs: [proof] }], unit: 'sat' }))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            return 'cashuA' + b64;
+        }
+
+        async function doMint(mintUrl, quoteId, pubkey, amount, sigflag) {
+            const ksR = await apiFetch(`${mintUrl}/v1/keysets`);
+            if (!ksR.ok) throw new Error(`/v1/keysets returned ${ksR.status}: ${await ksR.text()}`);
+            const ksD = await ksR.json();
+            const keyset = ksD.keysets?.find(k => k.active && k.unit === 'sat');
+            if (!keyset) throw new Error('No active sat keyset found on this mint.');
+            const keysetId = keyset.id;
+
+            const kR = await apiFetch(`${mintUrl}/v1/keys/${keysetId}`);
+            if (!kR.ok) throw new Error(`/v1/keys returned ${kR.status}: ${await kR.text()}`);
+            const kD = await kR.json();
+            const mintPubHex = kD.keysets?.[0]?.keys?.[String(amount)];
+            if (!mintPubHex) throw new Error(`No key for amount=${amount} in keyset ${keysetId}.`);
+
+            const secret = buildSecret(pubkey, sigflag);
+            const Y = await hashToCurve(secret);
+            const r = randomScalar();
+            const B_ = Y.add(secp.Point.BASE.multiply(r));
+
+            const mR = await apiFetch(`${mintUrl}/v1/mint/bolt11`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ outputs: [{ amount, id: keysetId, B_: B_.toHex() }], quote: quoteId })
+            });
+            if (!mR.ok) throw new Error(`/v1/mint/bolt11 returned ${mR.status}: ${await mR.text()}`);
+            const mD = await mR.json();
+            const C_hex = mD.signatures?.[0]?.C_;
+            if (!C_hex) throw new Error('Mint returned no blind signature.');
+
+            const C_ = secp.Point.fromHex(C_hex);
+            const A = secp.Point.fromHex(mintPubHex);
+            const C = C_.subtract(A.multiply(r));
+
+            showToken(encodeToken(mintUrl, { amount, id: keysetId, secret, C: C.toHex() }), pubkey, amount, mintUrl, sigflag);
+        }
+
+        let _poll = null;
+
+        async function pollQuote(mintUrl, quoteId, pubkey, amount, sigflag) {
+            try {
+                const r = await apiFetch(`${mintUrl}/v1/mint/quote/bolt11/${quoteId}`);
+                if (!r.ok) return;
+                const d = await r.json();
+                if (d.state === 'PAID' || d.paid === true) {
+                    clearInterval(_poll); _poll = null;
+                    try { await doMint(mintUrl, quoteId, pubkey, amount, sigflag); }
+                    catch (e) { showError(e.message); }
+                }
+            } catch (_) { }
+        }
+
+        function bech32Decode(str) {
+            const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+            str = str.toLowerCase();
+            const sep = str.lastIndexOf('1');
+            if (sep < 1) return null;
+            const data = [];
+            for (let i = sep + 1; i < str.length; i++) {
+                const v = CHARSET.indexOf(str[i]);
+                if (v < 0) return null;
+                data.push(v);
+            }
+            const payload = data.slice(0, -6);
+            let acc = 0, bits = 0;
+            const bytes = [];
+            for (const v of payload) {
+                acc = (acc << 5) | v;
+                bits += 5;
+                if (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); }
+            }
+            return new Uint8Array(bytes);
+        }
+
+        function resolvePublicKey(raw) {
+            raw = raw.trim();
+            if (/^0[23][0-9a-fA-F]{64}$/.test(raw)) return raw;
+            if (/^[0-9a-fA-F]{64}$/.test(raw)) return '02' + raw;
+            if (raw.startsWith('npub1')) {
+                const bytes = bech32Decode(raw);
+                if (bytes && bytes.length === 32) return '02' + b2h(bytes);
+            }
+            return null;
+        }
+
+        async function startMint() {
+            const mintUrl = document.getElementById('mintUrl').value.trim().replace(/\/+$/, '');
+            const amount = parseInt(document.getElementById('amount').value);
+            const rawPubkey = document.getElementById('pubkey').value.trim();
+            const sigflag = document.getElementById('sigflag').value.trim();
+
+            if (!mintUrl) return showError('mintUrl is required.');
+            if (isNaN(amount) || amount < 1) return showError('amount must be ≥ 1.');
+            if (!rawPubkey) return showError('pubkey is required.');
+            const pubkey = resolvePublicKey(rawPubkey);
+            if (!pubkey) return showError('Invalid pubkey. Accepted: 66-char compressed hex (02/03…), 64-char nostr hex, or npub1… bech32.');
+            if (!sigflag) return showError('sigflag is required.');
+
+            resetOutputs();
+            document.getElementById('mintBtn').disabled = true;
+
+            try {
+                const qR = await apiFetch(`${mintUrl}/v1/mint/quote/bolt11`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, unit: 'sat' })
+                });
+                if (!qR.ok) throw new Error(`Quote request failed (HTTP ${qR.status}): ${await qR.text()}`);
+                const quote = await qR.json();
+
+                showInvoice(quote.request);
+
+                if (_poll) clearInterval(_poll);
+                _poll = setInterval(() => pollQuote(mintUrl, quote.quote, pubkey, amount, sigflag), 2000);
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        function showInvoice(invoice) {
+            document.getElementById('invoicePanel').style.display = 'block';
+            document.getElementById('invoiceString').textContent = invoice;
+            document.getElementById('qr-code').innerHTML = '';
+            new QRCode(document.getElementById('qr-code'), {
+                text: invoice.toUpperCase(), width: 150, height: 150,
+                colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        function showToken(token, pubkey, amount, mintUrl, sigflag) {
+            document.getElementById('invoicePanel').style.display = 'none';
+            document.getElementById('tokenResultPanel').style.display = 'block';
+            document.getElementById('tokenString').textContent = token;
+            const nonStd = sigflag !== 'SIG_INPUTS' && sigflag !== 'SIG_ALL';
+            document.getElementById('tokenMeta').innerHTML =
+                `<span class="meta-key">sigflag</span>: <span class="meta-val">"${esc(sigflag)}"</span>` +
+                (nonStd ? ` <span class="meta-warn">// non-standard — anyone can spend</span>` : '');
+            const btn = document.getElementById('mintBtn');
+            btn.textContent = 'Minted'; btn.disabled = true;
+        }
+
+        function showError(msg) {
+            if (_poll) { clearInterval(_poll); _poll = null; }
+            const eb = document.getElementById('errorBlock');
+            eb.style.display = 'block';
+            eb.innerHTML = `<strong>Error:</strong> ${esc(msg)}`;
+            const btn = document.getElementById('mintBtn');
+            btn.disabled = false; btn.textContent = '▶ Mint';
+        }
+
+        function resetOutputs() {
+            document.getElementById('invoicePanel').style.display = 'none';
+            document.getElementById('tokenResultPanel').style.display = 'none';
+            document.getElementById('errorBlock').style.display = 'none';
+            document.getElementById('qr-code').innerHTML = '';
+        }
+
+        function resetUI() {
+            if (_poll) { clearInterval(_poll); _poll = null; }
+            resetOutputs();
+            const btn = document.getElementById('mintBtn');
+            btn.disabled = false; btn.textContent = '▶ Mint';
+        }
+
+        function copyInvoice() {
+            navigator.clipboard.writeText(document.getElementById('invoiceString').textContent).then(() => {
+                const h = document.getElementById('invoiceCopyHint');
+                h.textContent = 'Copied'; h.classList.add('ok');
+                setTimeout(() => { h.textContent = 'Click to copy invoice'; h.classList.remove('ok'); }, 1800);
+            });
+        }
+
+        function copyToken() {
+            navigator.clipboard.writeText(document.getElementById('tokenString').textContent).then(() => {
+                const h = document.getElementById('tokenCopyHint');
+                h.textContent = 'Copied'; h.classList.add('ok');
+                setTimeout(() => { h.textContent = 'Click to copy token'; h.classList.remove('ok'); }, 1800);
+            });
+        }
+    </script>
+</body>
+
+</html>
